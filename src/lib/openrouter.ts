@@ -18,7 +18,7 @@ export async function generateSummary(
       },
       {
         role: 'user',
-        content: `Please summarize the following news:\n\n${newsContent}`,
+        content: `Pleasee summarize the following news:\n\n${newsContent}`,
       },
     ],
   });
