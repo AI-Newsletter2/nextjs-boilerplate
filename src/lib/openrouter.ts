@@ -7,14 +7,15 @@ const openrouter = new OpenAI({
 
 export async function generateSummary(
   newsContent: string,
-  userPreferences: string[]
+  userPreferences: string[],
+  timeScope: number
 ): Promise<string> {
   const response = await openrouter.chat.completions.create({
-    model: 'openai/gpt-3.5-turbo',
+    model: 'openai/gpt-4',
     messages: [
       {
         role: 'system',
-        content: `You are a helpful assistant that summarizes news articles. Focus on these topics: ${userPreferences.join(', ')}`,
+        content: `You are an assistant that summarizes news articles from the past ${timeScope} days exclusively. Focus on these topics: ${userPreferences.join(', ')}`,
       },
       {
         role: 'user',
