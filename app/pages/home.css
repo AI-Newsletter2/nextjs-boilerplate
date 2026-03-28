@@ -1,0 +1,21 @@
+.welcome_msg{
+    color: rgb(255, 255, 255);
+    font-size: 400%;
+    padding-left: 20px;
+    padding-top: 60px;
+    padding-bottom: 10px;
+}
+
+.main_body{
+
+    background: linear-gradient(to top left, rgb(138, 198, 235),rgba(19, 227, 168, 0.5), rgba(211, 224, 25, 0.5), rgba(240, 83, 10, 0.5), rgba(210, 51, 218, 0.5));
+    background-size: 900% 900%;
+    animation: animatedGradient 100s infinite linear;
+
+    border-radius: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 18px;
+    margin-top: 22px;
+    
+}
