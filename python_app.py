@@ -4,8 +4,8 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 
 load_dotenv()
-print(os.environ.get("SUPABASE_URL"))
-print(os.environ.get("SUPABASE_PUBLISHABLE_KEY"))
+# print(os.environ.get("SUPABASE_URL"))
+# print(os.environ.get("SUPABASE_PUBLISHABLE_KEY"))
 app = Flask(__name__)
 
 supabase: Client = create_client(
@@ -13,12 +13,16 @@ supabase: Client = create_client(
     os.environ.get("SUPABASE_PUBLISHABLE_KEY")
 )
 
-# update_json should be a dict
-def update_newsletter(user_id, newsletter_index, update_json):
-    # Get a newsletter by its index
+# Might need to change updating to use jsonb_set() later 
+# According to Claude: Any production app with multiple users → prefer jsonb_set() as a habit, 
+# the race condition in fetch → merge is a real bug waiting to happen
+
+# If update_data is a json in the table, it should be a dict in python 
+def update_newsletter_data(user_id, newsletter_index, column, update_data):
+    # Get a newsletter, should be only 1 newsletter row
     response = (
         supabase.table("Test_Newsletter_Database")
-        .update(update_json)
+        .update({column: update_data})
         .eq("user_id", user_id)
         .eq("user_newsletter_index", newsletter_index)
         .execute()
@@ -26,6 +30,20 @@ def update_newsletter(user_id, newsletter_index, update_json):
     print(response) 
     return response
 
+# Returns the data in the selected row and column 
+def fetch_newsletter_data(user_id, newsletter_index, column):
+    # Get a newsletter, should be only 1 newsletter row
+    # Normally response.data is a list of dicts with each value in the list corresponding to a row, 
+    # .single() returns the singular value in the list, but gives error if the query doesn't match exactly 1 row 
+    response = (
+        supabase.table("Test_Newsletter_Database")
+        .select(column)
+        .eq("user_id", user_id)
+        .eq("user_newsletter_index", newsletter_index)
+        .single()
+        .execute()
+    )
+    return response.data[column]
 
 @app.post("/update-email")
 def update_email(user_id, new_email):
@@ -35,8 +53,14 @@ def update_email(user_id, new_email):
 
 @app.route('/')
 def index():
+    # Updating a the topics json for a newsletter 
+    newsletter_topics = fetch_newsletter_data(1, 0, "topics")
+    newsletter_topics["topics"][1]["sources"][0] = "wsj.com"
+    update_newsletter_data(1, 0, "topics", newsletter_topics)
+
+
     update_email(1, "newemail3@gmail.com")
-    update_newsletter(1, 0, {"schedule": {"frequency": "weekly", "weekly_on": "Wednesday"}})
+    update_newsletter_data(1, 0, "schedule", {"frequency": "weekly", "weekly_on": "Thursdat"})
 
     response = supabase.table('Test_User_Database').select("*, Test_Newsletter_Database(*)").execute()
     users = response.data
