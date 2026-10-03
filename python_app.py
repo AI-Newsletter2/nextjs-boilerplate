@@ -54,13 +54,13 @@ def update_email(user_id, new_email):
 @app.route('/')
 def index():
     # Updating a the topics json for a newsletter 
-    newsletter_topics = fetch_newsletter_data(1, 0, "topics")
+    newsletter_topics = fetch_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "topics")
     newsletter_topics["topics"][1]["sources"][0] = "wsj.com"
-    update_newsletter_data(1, 0, "topics", newsletter_topics)
+    update_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "topics", newsletter_topics)
 
 
-    update_email(1, "newemail3@gmail.com")
-    update_newsletter_data(1, 0, "schedule", {"frequency": "weekly", "weekly_on": "Thursdat"})
+    update_email("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", "newemail3@gmail.com")
+    update_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "schedule", {"frequency": "weekly", "weekly_on": "Thursdar"})
 
     response = supabase.table('Test_User_Database').select("*, Test_Newsletter_Database(*)").execute()
     users = response.data
