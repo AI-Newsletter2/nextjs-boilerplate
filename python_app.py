@@ -21,7 +21,7 @@ supabase: Client = create_client(
 def update_newsletter_data(user_id, newsletter_index, column, update_data):
     # Get a newsletter, should be only 1 newsletter row
     response = (
-        supabase.table("Test_Newsletter_Database")
+        supabase.table("Test_Email_Schedules")
         .update({column: update_data})
         .eq("user_id", user_id)
         .eq("user_newsletter_index", newsletter_index)
@@ -36,7 +36,7 @@ def fetch_newsletter_data(user_id, newsletter_index, column):
     # Normally response.data is a list of dicts with each value in the list corresponding to a row, 
     # .single() returns the singular value in the list, but gives error if the query doesn't match exactly 1 row 
     response = (
-        supabase.table("Test_Newsletter_Database")
+        supabase.table("Test_Email_Schedules")
         .select(column)
         .eq("user_id", user_id)
         .eq("user_newsletter_index", newsletter_index)
@@ -55,21 +55,21 @@ def update_email(user_id, new_email):
 def index():
     # Updating a the topics json for a newsletter 
     newsletter_topics = fetch_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "topics")
-    newsletter_topics["topics"][1]["sources"][0] = "wsj.com"
+    newsletter_topics["topics"][1]["sources"][0] = "usnews.com"
     update_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "topics", newsletter_topics)
 
 
     update_email("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", "newemail3@gmail.com")
     update_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "schedule", {"frequency": "weekly", "weekly_on": "Thursdar"})
 
-    response = supabase.table('Test_User_Database').select("*, Test_Newsletter_Database(*)").execute()
+    response = supabase.table('Test_User_Database').select("*, Test_Email_Schedules(*)").execute()
     users = response.data
 
     html = '<h1>Users</h1><ul>'
     for user in users:
         # Getting user's newsletter with index 0 
         nl_response = (
-            supabase.table("Test_Newsletter_Database")
+            supabase.table("Test_Email_Schedules")
             .select("*")
             .eq("user_id", user["id"])
             .eq("user_newsletter_index", 0)
