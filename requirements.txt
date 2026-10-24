@@ -1,0 +1,4 @@
+supabase
+croniter
+resend
+requests
