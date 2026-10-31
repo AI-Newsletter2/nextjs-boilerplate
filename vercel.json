@@ -1,5 +1,4 @@
 {
-  "crons": [{ "path": "/api/dispatch-schedules", "schedule": "*/5 * * * *" }],
   "functions": {
     "api/process-one-email.py": { "maxDuration": 60 }
   }
