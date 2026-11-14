@@ -2,6 +2,23 @@ import os
 from flask import Flask
 from supabase import create_client, Client
 from dotenv import load_dotenv
+from http.server import BaseHTTPRequestHandler
+import json
+
+
+def test_function() -> str:
+    # This is the Python function the button ends up calling
+    return "Output here (from Python)"
+
+
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        print("test-message endpoint called")  # appears in Vercel runtime logs
+
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"message": test_function()}).encode())
 
 load_dotenv()
 # print(os.environ.get("SUPABASE_URL"))

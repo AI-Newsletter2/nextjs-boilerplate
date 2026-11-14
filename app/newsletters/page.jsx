@@ -2,12 +2,27 @@
 
 import { useState } from 'react';
 
-function TestMessage() {
-  return 'Output here';
+async function TestMessage() {
+  // Calls the Python function running on Vercel at api/test-message.py
+  const res = await fetch('/api/python_app');
+  if (!res.ok) {
+    throw new Error(`Request failed with status ${res.status}`);
+  }
+  const data = await res.json();
+  return data.message;
 }
 
 export default function NewslettersPage() {
   const [result, setResult] = useState('');
+
+  async function handleRunTest() {
+    setResult('Running...');
+    try {
+      setResult(await TestMessage());
+    } catch (err) {
+      setResult(`Error: ${err.message}`);
+    }
+  }
 
   return (
     <main
@@ -23,7 +38,7 @@ export default function NewslettersPage() {
     >
       <button
         type="button"
-        onClick={() => setResult(TestMessage())}
+        onClick={handleRunTest}
         style={{
           padding: '10px 16px',
           border: 0,
