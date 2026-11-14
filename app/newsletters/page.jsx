@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 async function TestMessage() {
   // Calls the Python function running on Vercel at api/test-message.py
-  const res = await fetch('/api/python_app');
+  const res = await fetch('/api/greet');
   if (!res.ok) {
     throw new Error(`Request failed with status ${res.status}`);
   }
