@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "The server cannot reach Supabase. Verify SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY are configured for this deployment.",
+          "The server cannot reach Supabase. Verify the Supabase URL and publishable/anon key are configured for this deployment.",
       },
       { status: 503 },
     );
