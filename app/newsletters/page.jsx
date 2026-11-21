@@ -23,6 +23,7 @@ export default function NewslettersPage() {
   const [pendingTime, setPendingTime] = useState('');
   const [savingId, setSavingId] = useState('');
   const [message, setMessage] = useState('');
+  const [result, setResult] = useState('');
 
   async function loadNewsletters() {
     const response = await fetch('/api/newsletters');
