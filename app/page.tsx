@@ -1,5 +1,9 @@
-import Home from './pages/Home';
+import { redirect } from "next/navigation";
+import { getAuthenticatedUser } from "@/src/lib/supabase/server";
+import Dashboard from "./pages/Dashboard";
 
-export default function Page() {
-  return <Home />;
+export default async function Page() {
+  const user = await getAuthenticatedUser();
+  if (!user) redirect("/welcome");
+  return <Dashboard />;
 }

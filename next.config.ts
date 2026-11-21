@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  outputFileTracingIncludes: {
+    "/api/cron/newsletters": ["./src/lib/send_email.py"],
+  },
 };
 
 export default nextConfig;

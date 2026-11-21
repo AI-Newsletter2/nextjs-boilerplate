@@ -5,21 +5,21 @@ const newsletters = [
     category: 'TECHNOLOGY',
     title: 'The Next Wave',
     description: 'Thoughtful takes on the technology shaping tomorrow.',
-    tone: 'blue',
+    tone: 'red',
     initials: 'NW',
   },
   {
     category: 'BUSINESS',
     title: 'The Daily Ledger',
     description: 'The business stories worth understanding today.',
-    tone: 'gold',
+    tone: 'blue',
     initials: 'DL',
   },
   {
     category: 'CULTURE',
     title: 'Culture Notes',
     description: 'Ideas, art, and the conversations moving culture.',
-    tone: 'rose',
+    tone: 'purple',
     initials: 'CN',
   },
 ];
@@ -61,9 +61,14 @@ export default function Home() {
           </a>
         </nav>
 
-        <a className="sign_in_link" href="#subscribe">
-          Log in <ArrowIcon />
-        </a>
+        <div className="auth_actions">
+          <a className="sign_in_link" href="/login">
+            Log in <ArrowIcon />
+          </a>
+          <a className="sign_up_link" href="/signup">
+            Sign up
+          </a>
+        </div>
       </header>
 
       <main>
@@ -158,7 +163,6 @@ export default function Home() {
             {newsletters.map((newsletter) => (
               <article className="newsletter_card" key={newsletter.title}>
                 <div className={`newsletter_art ${newsletter.tone}`}>
-                  <span className="card_art_orbit" aria-hidden="true" />
                   <span className="card_initials">{newsletter.initials}</span>
                   <span className="card_category">{newsletter.category}</span>
                 </div>
@@ -187,7 +191,6 @@ export default function Home() {
           </span>
           <span>briefly</span>
         </a>
-        <p>Make room for what matters.</p>
         <span className="footer_note">© 2026 Briefly</span>
       </footer>
     </div>
