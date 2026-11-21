@@ -38,19 +38,30 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = await createSupabaseServerClient({ writeCookies: true });
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    const needsConfirmation = error.code === "email_not_confirmed";
+  try {
+    const supabase = await createSupabaseServerClient({ writeCookies: true });
+    const result = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = result;
+    if (error) {
+      const needsConfirmation = error.code === "email_not_confirmed";
+      return NextResponse.json(
+        {
+          error: needsConfirmation
+            ? "Confirm your email address before signing in."
+            : "The email or password is incorrect.",
+        },
+        { status: needsConfirmation ? 403 : 401 },
+      );
+    }
+    return NextResponse.json({ success: true });
+  } catch (loginError) {
+    console.error("Account login request failed:", loginError);
     return NextResponse.json(
       {
-        error: needsConfirmation
-          ? "Confirm your email address before signing in."
-          : "The email or password is incorrect.",
+        error:
+          "The server cannot reach Supabase. Verify SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY are configured for this deployment.",
       },
-      { status: needsConfirmation ? 403 : 401 },
+      { status: 503 },
     );
   }
-
-  return NextResponse.json({ success: true });
 }

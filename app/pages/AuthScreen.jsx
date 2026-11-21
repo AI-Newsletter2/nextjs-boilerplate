@@ -22,7 +22,12 @@ export default function AuthScreen({ mode, defaultEmail = '', defaultName = 'Adm
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.fromEntries(formData)),
       });
-      const result = await response.json();
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error(`The server returned HTTP ${response.status}.`);
+      }
       if (!response.ok) {
         setMessage(result.error || 'Unable to sign in. Please try again.');
         return;
@@ -35,8 +40,12 @@ export default function AuthScreen({ mode, defaultEmail = '', defaultName = 'Adm
 
       router.replace('/');
       router.refresh();
-    } catch {
-      setMessage('Unable to complete that request. Check your connection and try again.');
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? `Unable to reach the server: ${error.message}`
+          : 'Unable to complete that request. Check your connection and try again.',
+      );
     } finally {
       setIsSubmitting(false);
     }

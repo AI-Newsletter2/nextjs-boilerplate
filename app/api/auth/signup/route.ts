@@ -27,12 +27,27 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = await createSupabaseServerClient({ writeCookies: true });
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { full_name: name } },
-  });
+  let data;
+  let error;
+  try {
+    const supabase = await createSupabaseServerClient({ writeCookies: true });
+    const result = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: name } },
+    });
+    data = result.data;
+    error = result.error;
+  } catch (signUpError) {
+    console.error("Account signup request failed:", signUpError);
+    return NextResponse.json(
+      {
+        error:
+          "The server cannot reach Supabase. Verify SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY are configured for this deployment.",
+      },
+      { status: 503 },
+    );
+  }
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
