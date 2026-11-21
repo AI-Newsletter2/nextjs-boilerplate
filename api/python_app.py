@@ -1,0 +1,105 @@
+import os
+from flask import Flask
+from supabase import create_client, Client
+from dotenv import load_dotenv
+from http.server import BaseHTTPRequestHandler
+import json
+
+
+def test_function() -> str:
+    # This is the Python function the button ends up calling
+    return "Output here (from Python)"
+
+
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        print("test-message endpoint called")  # appears in Vercel runtime logs
+
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"message": test_function()}).encode())
+
+load_dotenv()
+# print(os.environ.get("SUPABASE_URL"))
+# print(os.environ.get("SUPABASE_PUBLISHABLE_KEY"))
+app = Flask(__name__)
+
+supabase: Client = create_client(
+    os.environ.get("SUPABASE_URL"),
+    os.environ.get("SUPABASE_PUBLISHABLE_KEY")
+)
+
+# Might need to change updating to use jsonb_set() later 
+# According to Claude: Any production app with multiple users → prefer jsonb_set() as a habit, 
+# the race condition in fetch → merge is a real bug waiting to happen
+
+# If update_data is a json in the table, it should be a dict in python 
+def update_newsletter_data(user_id, newsletter_index, column, update_data):
+    # Get a newsletter, should be only 1 newsletter row
+    response = (
+        supabase.table("Test_Email_Schedules")
+        .update({column: update_data})
+        .eq("user_id", user_id)
+        .eq("user_newsletter_index", newsletter_index)
+        .execute()
+    )
+    print(response) 
+    return response
+
+# Returns the data in the selected row and column 
+def fetch_newsletter_data(user_id, newsletter_index, column):
+    # Get a newsletter, should be only 1 newsletter row
+    # Normally response.data is a list of dicts with each value in the list corresponding to a row, 
+    # .single() returns the singular value in the list, but gives error if the query doesn't match exactly 1 row 
+    response = (
+        supabase.table("Test_Email_Schedules")
+        .select(column)
+        .eq("user_id", user_id)
+        .eq("user_newsletter_index", newsletter_index)
+        .single()
+        .execute()
+    )
+    return response.data[column]
+
+@app.post("/update-email")
+def update_email(user_id, new_email):
+    response = supabase.table("Test_User_Database").update({"email": new_email}).eq("id", user_id).execute()
+    print(response) 
+    return response
+
+@app.route('/')
+def index():
+    # Updating a the topics json for a newsletter 
+    newsletter_topics = fetch_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "topics")
+    newsletter_topics["topics"][1]["sources"][0] = "usnews.com"
+    update_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "topics", newsletter_topics)
+
+
+    update_email("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", "newemail3@gmail.com")
+    update_newsletter_data("af0b4090-3cc6-4c2d-b1c8-cd901f55e24a", 0, "schedule", {"frequency": "weekly", "weekly_on": "Thursdar"})
+
+    response = supabase.table('Test_User_Database').select("*, Test_Email_Schedules(*)").execute()
+    users = response.data
+
+    html = '<h1>Users</h1><ul>'
+    for user in users:
+        # Getting user's newsletter with index 0 
+        nl_response = (
+            supabase.table("Test_Email_Schedules")
+            .select("*")
+            .eq("user_id", user["id"])
+            .eq("user_newsletter_index", 0)
+            .execute()
+        )
+        # nl_response.data I think returns a list of data matching the conditions
+        newsletter_0 = nl_response.data[0]
+
+        html += f'<li>Name: {user["name"]}, Email: {user["email"]}, '
+        html += f'Topics: {newsletter_0["topics"]["topics"][0]["topic_name"]}</li>'
+    html += '</ul>'
+
+    return html
+
+if __name__ == '__main__':
+    app.run(debug=True)
